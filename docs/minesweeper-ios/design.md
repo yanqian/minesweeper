@@ -92,6 +92,9 @@ Store metrics in a `StatsStore` using `Codable` persisted to JSON in Application
 - Manual tests on device for haptics and sound behavior.
 
 ## Open Questions
-- Confirm desired default board sizes for Easy/Medium/Hard.
-- Confirm whether first-tap safety is required (recommended).
-- Confirm custom mode bounds if different from proposed ranges.
+- Default board sizes (recommended):
+  - Easy: 9x9 with 10 mines (beginner standard).
+  - Medium: 16x16 with 40 mines (intermediate standard).
+  - Hard: 16x30 with 99 mines (expert standard).
+- First-tap safety: required. First reveal must never be a mine.
+- Custom bounds: keep proposed ranges. If performance issues appear on older devices, cap to 24x30 max.

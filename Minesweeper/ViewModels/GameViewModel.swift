@@ -69,6 +69,18 @@ final class GameViewModel: ObservableObject {
         }
     }
 
+    func checkWin() -> Bool {
+        return state.board.cells.allSatisfy { cell in
+            cell.isMine || cell.isRevealed
+        }
+    }
+
+    #if DEBUG
+    func setBoardForTesting(_ board: Board) {
+        state.board = board
+    }
+    #endif
+
     private func placeMines(excluding safeIndex: Int) {
         let total = state.board.rows * state.board.cols
         var indices = Array(0..<total)
@@ -101,12 +113,6 @@ final class GameViewModel: ObservableObject {
                     }
                 }
             }
-        }
-    }
-
-    private func checkWin() -> Bool {
-        return state.board.cells.allSatisfy { cell in
-            cell.isMine || cell.isRevealed
         }
     }
 

@@ -1,6 +1,7 @@
 import XCTest
 @testable import Minesweeper
 
+@MainActor
 final class WinLogicTests: XCTestCase {
     func testWinWhenAllSafeCellsRevealed() {
         let statsStore = StatsStore()

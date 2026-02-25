@@ -1,6 +1,7 @@
 import XCTest
 @testable import Minesweeper
 
+@MainActor
 final class BoardGenerationTests: XCTestCase {
     func testFirstRevealPlacesMinesAndIsSafe() {
         let statsStore = StatsStore()

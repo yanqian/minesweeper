@@ -7,9 +7,13 @@ final class GameViewModel: ObservableObject {
     @Published var showResult: Bool = false
     @Published var resultTitle: String = ""
     @Published var resultMessage: String = ""
+    @Published private(set) var elapsedSeconds: Int = 0
+    @Published private(set) var hasStarted: Bool = false
 
     private let statsStore: StatsStore
     private(set) var mode: GameMode
+    private var timerCancellable: AnyCancellable?
+    private var isActive: Bool = true
 
     init(mode: GameMode, statsStore: StatsStore) {
         self.mode = mode
@@ -34,9 +38,23 @@ final class GameViewModel: ObservableObject {
             startedAt: Date(),
             endedAt: nil
         )
+        elapsedSeconds = 0
+        hasStarted = false
+        stopTimer()
         showResult = false
         resultTitle = ""
         resultMessage = ""
+    }
+
+    func setActive(_ active: Bool) {
+        isActive = active
+        if isActive {
+            if state.status == .playing, hasStarted {
+                startTimer()
+            }
+        } else {
+            stopTimer()
+        }
     }
 
     func toggleFlag(at index: Int) {
@@ -48,6 +66,14 @@ final class GameViewModel: ObservableObject {
     func reveal(at index: Int) {
         guard state.status == .playing else { return }
         if state.board.cells[index].isFlagged || state.board.cells[index].isRevealed { return }
+
+        if !hasStarted {
+            hasStarted = true
+            state.startedAt = Date()
+            if isActive {
+                startTimer()
+            }
+        }
 
         if !state.board.hasPlacedMines {
             placeMines(excluding: index)
@@ -119,9 +145,9 @@ final class GameViewModel: ObservableObject {
     private func endGame(didWin: Bool) {
         state.status = didWin ? .won : .lost
         state.endedAt = Date()
+        stopTimer()
 
-        let duration = Int(state.endedAt!.timeIntervalSince(state.startedAt))
-        statsStore.recordGame(mode: mode.id, didWin: didWin, durationSeconds: max(1, duration))
+        statsStore.recordGame(mode: mode.id, didWin: didWin, durationSeconds: max(1, elapsedSeconds))
 
         if didWin {
             resultTitle = "You Win!"
@@ -133,5 +159,21 @@ final class GameViewModel: ObservableObject {
             Haptics.error()
         }
         showResult = true
+    }
+
+    private func startTimer() {
+        if timerCancellable != nil { return }
+        timerCancellable = Timer.publish(every: 1, on: .main, in: .common)
+            .autoconnect()
+            .sink { [weak self] _ in
+                guard let self else { return }
+                guard self.state.status == .playing, self.isActive, self.hasStarted else { return }
+                self.elapsedSeconds += 1
+            }
+    }
+
+    private func stopTimer() {
+        timerCancellable?.cancel()
+        timerCancellable = nil
     }
 }

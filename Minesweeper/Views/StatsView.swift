@@ -35,12 +35,11 @@ struct CompactStatsRow: View {
 
     var body: some View {
         let stats = statsStore.stats(for: mode)
-        let overall = statsStore.overallStats
 
         HStack {
+            CompactStatPill(title: "Played", value: "\(stats.gamesPlayed)")
+            CompactStatPill(title: "Won", value: "\(stats.gamesWon)")
             CompactStatPill(title: "Win %", value: StatsFormatter.percent(stats.successRate))
-            CompactStatPill(title: "Best", value: StatsFormatter.best(stats.bestTimeSeconds))
-            CompactStatPill(title: "Overall", value: StatsFormatter.percent(overall.successRate))
         }
         .padding(10)
         .background(Color.secondary.opacity(0.08))
@@ -80,6 +79,10 @@ struct StatsSummaryView: View {
             HStack {
                 StatPill(title: "Mode Avg", value: StatsFormatter.seconds(stats.averageTimeSeconds))
                 StatPill(title: "Best", value: StatsFormatter.best(stats.bestTimeSeconds))
+            }
+            HStack {
+                StatPill(title: "Played", value: "\(stats.gamesPlayed)")
+                StatPill(title: "Won", value: "\(stats.gamesWon)")
             }
         }
         .padding(12)

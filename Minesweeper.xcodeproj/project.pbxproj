@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		07AF9C4CB4DB3C7591CC7CF7 /* AppIntents.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3772B8C8286A7BF365EA79AF /* AppIntents.framework */; };
 		0893EE94E3019BA66DD7DA57 /* BoardGenerationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16BB67E66740FCA73D5AAB12 /* BoardGenerationTests.swift */; };
 		13F0D8FD7E76438231E44B2C /* CustomModeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30E52C3489D581C7601236AD /* CustomModeView.swift */; };
 		198E034701711F0BED32A158 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 401A998BE2E3A8DAA999A088 /* Foundation.framework */; };
@@ -44,6 +45,7 @@
 		30E52C3489D581C7601236AD /* CustomModeView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CustomModeView.swift; path = CustomModeView.swift; sourceTree = "<group>"; };
 		31F9E6264A6CDFEE4B2C5206 /* GameViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = GameViewModel.swift; path = GameViewModel.swift; sourceTree = "<group>"; };
 		344F471428B33502705CFD09 /* GameModels.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = GameModels.swift; path = GameModels.swift; sourceTree = "<group>"; };
+		3772B8C8286A7BF365EA79AF /* AppIntents.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppIntents.framework; path = System/Library/Frameworks/AppIntents.framework; sourceTree = SDKROOT; };
 		3B41D89C30C9615C3140E411 /* Minesweeper.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Minesweeper.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3D43F1B931B6E5839E7F7258 /* CellView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CellView.swift; path = CellView.swift; sourceTree = "<group>"; };
 		401A998BE2E3A8DAA999A088 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
@@ -64,6 +66,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				198E034701711F0BED32A158 /* Foundation.framework in Frameworks */,
+				07AF9C4CB4DB3C7591CC7CF7 /* AppIntents.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -101,6 +104,7 @@
 			isa = PBXGroup;
 			children = (
 				9A1F01BF67DCD826F9A6A396 /* iOS */,
+				3772B8C8286A7BF365EA79AF /* AppIntents.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";

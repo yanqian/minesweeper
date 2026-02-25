@@ -13,7 +13,7 @@ struct GameView: View {
             VStack(spacing: 16) {
                 GameHeaderView(modeTitle: viewModel.mode.title, state: viewModel.state)
                 GameBoardView(viewModel: viewModel)
-                StatsSummaryView(mode: viewModel.mode.id)
+                CollapsibleStatsView(mode: viewModel.mode.id)
             }
             .padding(.horizontal, 16)
             .padding(.top, 80)

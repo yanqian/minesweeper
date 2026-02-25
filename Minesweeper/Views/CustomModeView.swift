@@ -19,7 +19,7 @@ struct CustomModeView: View {
                 GameHeaderView(modeTitle: "Custom", state: viewModel.state)
                 customControls
                 GameBoardView(viewModel: viewModel)
-                StatsSummaryView(mode: .custom)
+                CollapsibleStatsView(mode: .custom)
             }
             .padding(.horizontal, 16)
             .padding(.top, 80)

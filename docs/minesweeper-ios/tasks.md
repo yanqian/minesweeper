@@ -10,6 +10,7 @@
 - [x] Add haptics and success sound feedback
 - [x] Add unit tests for board generation and win logic
 - [x] Fix Xcode build issues and warnings
+- [x] Make stats panel collapsible to enlarge board space
 
 ## Notes
 - Implementation PR: https://github.com/yanqian/minesweeper/pull/5

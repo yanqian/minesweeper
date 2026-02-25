@@ -37,25 +37,25 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		0C78790FC2F2948357DEFE82 /* MinesweeperApp.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MinesweeperApp.swift; path = Minesweeper/App/MinesweeperApp.swift; sourceTree = "<group>"; };
+		0C78790FC2F2948357DEFE82 /* MinesweeperApp.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MinesweeperApp.swift; path = MinesweeperApp.swift; sourceTree = "<group>"; };
 		16BB67E66740FCA73D5AAB12 /* BoardGenerationTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = BoardGenerationTests.swift; path = MinesweeperTests/BoardGenerationTests.swift; sourceTree = "<group>"; };
 		1F413A145597409FA8427BA3 /* Assets.xcassets */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = Assets.xcassets; sourceTree = "<group>"; };
 		21D95762EF783703A5300CE7 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; name = Info.plist; path = Info.plist; sourceTree = "<group>"; };
-		30E52C3489D581C7601236AD /* CustomModeView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CustomModeView.swift; path = Minesweeper/Views/CustomModeView.swift; sourceTree = "<group>"; };
-		31F9E6264A6CDFEE4B2C5206 /* GameViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = GameViewModel.swift; path = Minesweeper/ViewModels/GameViewModel.swift; sourceTree = "<group>"; };
-		344F471428B33502705CFD09 /* GameModels.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = GameModels.swift; path = Minesweeper/Models/GameModels.swift; sourceTree = "<group>"; };
+		30E52C3489D581C7601236AD /* CustomModeView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CustomModeView.swift; path = CustomModeView.swift; sourceTree = "<group>"; };
+		31F9E6264A6CDFEE4B2C5206 /* GameViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = GameViewModel.swift; path = GameViewModel.swift; sourceTree = "<group>"; };
+		344F471428B33502705CFD09 /* GameModels.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = GameModels.swift; path = GameModels.swift; sourceTree = "<group>"; };
 		3B41D89C30C9615C3140E411 /* Minesweeper.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Minesweeper.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		3D43F1B931B6E5839E7F7258 /* CellView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CellView.swift; path = Minesweeper/Views/CellView.swift; sourceTree = "<group>"; };
+		3D43F1B931B6E5839E7F7258 /* CellView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CellView.swift; path = CellView.swift; sourceTree = "<group>"; };
 		401A998BE2E3A8DAA999A088 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		7266AD1B6011FBEE2AEECA2C /* success.wav */ = {isa = PBXFileReference; includeInIndex = 1; name = success.wav; path = success.wav; sourceTree = "<group>"; };
 		746CDADB887821F8BF6577D8 /* MinesweeperTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MinesweeperTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		7593976BE9FAC110CFE81C62 /* StatsStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = StatsStore.swift; path = Minesweeper/ViewModels/StatsStore.swift; sourceTree = "<group>"; };
-		8BD12ECB44B8FDEDB0471F73 /* GameView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = GameView.swift; path = Minesweeper/Views/GameView.swift; sourceTree = "<group>"; };
-		8FC4864A7062E788EC5A4A61 /* ContentView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ContentView.swift; path = Minesweeper/Views/ContentView.swift; sourceTree = "<group>"; };
-		B3FA713C8677A89DF85AD1F4 /* SoundManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SoundManager.swift; path = Minesweeper/ViewModels/SoundManager.swift; sourceTree = "<group>"; };
-		D84AAFDEB479F1C997354902 /* StatsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = StatsView.swift; path = Minesweeper/Views/StatsView.swift; sourceTree = "<group>"; };
+		7593976BE9FAC110CFE81C62 /* StatsStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = StatsStore.swift; path = StatsStore.swift; sourceTree = "<group>"; };
+		8BD12ECB44B8FDEDB0471F73 /* GameView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = GameView.swift; path = GameView.swift; sourceTree = "<group>"; };
+		8FC4864A7062E788EC5A4A61 /* ContentView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ContentView.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		B3FA713C8677A89DF85AD1F4 /* SoundManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SoundManager.swift; path = SoundManager.swift; sourceTree = "<group>"; };
+		D84AAFDEB479F1C997354902 /* StatsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = StatsView.swift; path = StatsView.swift; sourceTree = "<group>"; };
 		DF1DEE555F92DBFF9DDFA883 /* WinLogicTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WinLogicTests.swift; path = MinesweeperTests/WinLogicTests.swift; sourceTree = "<group>"; };
-		EAE76158B1058E62FBB02CA2 /* Haptics.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Haptics.swift; path = Minesweeper/ViewModels/Haptics.swift; sourceTree = "<group>"; };
+		EAE76158B1058E62FBB02CA2 /* Haptics.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Haptics.swift; path = Haptics.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -111,7 +111,7 @@
 				0C78790FC2F2948357DEFE82 /* MinesweeperApp.swift */,
 			);
 			name = App;
-			path = Minesweeper/App;
+			path = App;
 			sourceTree = "<group>";
 		};
 		7E11F81AEA08DA40FE5BA96E /* Minesweeper */ = {
@@ -137,7 +137,7 @@
 				D84AAFDEB479F1C997354902 /* StatsView.swift */,
 			);
 			name = Views;
-			path = Minesweeper/Views;
+			path = Views;
 			sourceTree = "<group>";
 		};
 		91D89068069EBBC482D16773 /* Resources */ = {
@@ -148,7 +148,7 @@
 				21D95762EF783703A5300CE7 /* Info.plist */,
 			);
 			name = Resources;
-			path = Minesweeper/Resources;
+			path = Resources;
 			sourceTree = "<group>";
 		};
 		9A1F01BF67DCD826F9A6A396 /* iOS */ = {
@@ -168,7 +168,7 @@
 				EAE76158B1058E62FBB02CA2 /* Haptics.swift */,
 			);
 			name = ViewModels;
-			path = Minesweeper/ViewModels;
+			path = ViewModels;
 			sourceTree = "<group>";
 		};
 		DCC8A26730B878278016D3F6 /* Models */ = {
@@ -177,7 +177,7 @@
 				344F471428B33502705CFD09 /* GameModels.swift */,
 			);
 			name = Models;
-			path = Minesweeper/Models;
+			path = Models;
 			sourceTree = "<group>";
 		};
 		F9210B1F2E4800AC8BF8CBA7 /* Products */ = {

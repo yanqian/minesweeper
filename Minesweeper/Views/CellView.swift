@@ -11,8 +11,8 @@ struct CellView: View {
 
             if cell.isRevealed {
                 if cell.isMine {
-                    Image(systemName: "xmark.octagon.fill")
-                        .foregroundStyle(.red)
+                    Image(systemName: "burst.fill")
+                        .foregroundStyle(.gray)
                         .font(.system(size: size * 0.5))
                 } else if cell.adjacentMines > 0 {
                     Text("\(cell.adjacentMines)")

@@ -12,6 +12,7 @@
 - [x] Fix Xcode build issues and warnings
 - [x] Make stats panel collapsible to enlarge board space
 - [x] Add pinch-to-zoom for the board
+- [x] Split Custom mode into settings page and full-board game page
 
 ## Notes
 - Implementation PR: https://github.com/yanqian/minesweeper/pull/5

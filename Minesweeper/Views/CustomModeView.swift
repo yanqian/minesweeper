@@ -6,6 +6,7 @@ struct CustomModeView: View {
     @AppStorage("customRows") private var rows: Int = 12
     @AppStorage("customCols") private var cols: Int = 18
     @AppStorage("customMines") private var mines: Int = 40
+    @State private var showSettings = true
 
     init(statsStore: StatsStore) {
         let config = CustomConfig(rows: 12, cols: 18, mines: 40)
@@ -14,10 +15,61 @@ struct CustomModeView: View {
 
     var body: some View {
         ZStack {
+            if showSettings {
+                settingsPage
+            } else {
+                gamePage
+            }
+        }
+        .animation(.easeInOut(duration: 0.2), value: showSettings)
+    }
+
+    private var settingsPage: some View {
+        ZStack {
             Color(.systemBackground).ignoresSafeArea()
             VStack(spacing: 16) {
-                GameHeaderView(modeTitle: "Custom", state: viewModel.state)
+                HStack {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Custom Mode")
+                            .font(.title2.weight(.bold))
+                        Text("Set board size and mines")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(.secondary)
+                    }
+                    Spacer()
+                }
+                .padding(.top, 20)
+
                 customControls
+
+                Button("Start Game") {
+                    startCustomGame()
+                    showSettings = false
+                }
+                .buttonStyle(.borderedProminent)
+                .padding(.top, 8)
+
+                Spacer()
+            }
+            .padding(.horizontal, 16)
+            .padding(.top, 80)
+            .padding(.bottom, 24)
+        }
+        .onAppear { clampMines() }
+    }
+
+    private var gamePage: some View {
+        ZStack {
+            Color(.systemBackground).ignoresSafeArea()
+            VStack(spacing: 16) {
+                HStack {
+                    GameHeaderView(modeTitle: "Custom", state: viewModel.state)
+                    Spacer()
+                    Button("Settings") {
+                        showSettings = true
+                    }
+                    .buttonStyle(.bordered)
+                }
                 GameBoardView(viewModel: viewModel)
                 CollapsibleStatsView(mode: .custom)
             }
@@ -31,9 +83,6 @@ struct CustomModeView: View {
             }
         } message: {
             Text(viewModel.resultMessage)
-        }
-        .onAppear {
-            clampMines()
         }
     }
 
@@ -62,11 +111,6 @@ struct CustomModeView: View {
             .onChange(of: mines) { _ in
                 clampMines()
             }
-
-            Button("Apply and Restart") {
-                startCustomGame()
-            }
-            .buttonStyle(.borderedProminent)
         }
         .padding(12)
         .background(Color.secondary.opacity(0.08))

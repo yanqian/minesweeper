@@ -73,6 +73,8 @@ struct ElapsedTimeView: View {
 
 struct GameBoardView: View {
     @ObservedObject var viewModel: GameViewModel
+    @State private var zoomScale: CGFloat = 1.0
+    @State private var gestureScale: CGFloat = 1.0
 
     var body: some View {
         GeometryReader { proxy in
@@ -82,6 +84,7 @@ struct GameBoardView: View {
             let cols = viewModel.state.board.cols
             let rawSize = min(availableWidth / CGFloat(cols), availableHeight / CGFloat(rows))
             let cellSize = max(16, rawSize - 2)
+            let effectiveScale = clampScale(zoomScale * gestureScale)
 
             ScrollView([.horizontal, .vertical], showsIndicators: false) {
                 LazyVGrid(columns: Array(repeating: GridItem(.fixed(cellSize), spacing: 2), count: cols), spacing: 2) {
@@ -96,8 +99,23 @@ struct GameBoardView: View {
                     }
                 }
                 .padding(8)
+                .scaleEffect(effectiveScale, anchor: .center)
             }
         }
         .frame(maxHeight: 420)
+        .gesture(
+            MagnificationGesture()
+                .onChanged { value in
+                    gestureScale = value
+                }
+                .onEnded { value in
+                    zoomScale = clampScale(zoomScale * value)
+                    gestureScale = 1.0
+                }
+        )
+    }
+
+    private func clampScale(_ scale: CGFloat) -> CGFloat {
+        min(2.0, max(0.8, scale))
     }
 }

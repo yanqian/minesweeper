@@ -11,6 +11,7 @@
 - [x] Add unit tests for board generation and win logic
 - [x] Fix Xcode build issues and warnings
 - [x] Make stats panel collapsible to enlarge board space
+- [x] Add pinch-to-zoom for the board
 
 ## Notes
 - Implementation PR: https://github.com/yanqian/minesweeper/pull/5

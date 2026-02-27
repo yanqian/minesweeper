@@ -7,11 +7,14 @@ struct CustomModeView: View {
     let onElapsedChanged: (Int) -> Void
     let onZoomChanged: (Bool) -> Void
     @State private var isZoomed = false
+    @State private var showSettingsSheet = false
+    @State private var zoomResetToken = UUID()
+    private let topBarReserve: CGFloat = 70
+    private let statsReserve: CGFloat = 66
 
     @AppStorage("customRows") private var rows: Int = 12
     @AppStorage("customCols") private var cols: Int = 18
     @AppStorage("customMines") private var mines: Int = 40
-    @State private var showSettings = true
 
     init(
         statsStore: StatsStore,
@@ -30,23 +33,31 @@ struct CustomModeView: View {
 
     var body: some View {
         ZStack {
-            if showSettings {
-                settingsPage
-            } else {
-                gamePage
-            }
+            GameBackgroundView().ignoresSafeArea()
+            GameBoardView(viewModel: viewModel, isZoomed: $isZoomed, resetToken: zoomResetToken)
+                .padding(.horizontal, 12)
+                .padding(.top, topBarReserve)
+                .padding(.bottom, statsReserve)
+                .ignoresSafeArea(edges: [])
+
+            StatsOverlay(mode: .custom)
+                .padding(.horizontal, 12)
+                .padding(.bottom, 10)
+                .frame(maxHeight: .infinity, alignment: .bottomLeading)
+                .opacity(isZoomed ? 0.0 : 1.0)
         }
-        .animation(.easeInOut(duration: 0.2), value: showSettings)
         .onAppear { viewModel.setActive(isActive) }
         .onChange(of: isActive) { value in
             viewModel.setActive(value)
         }
-        .onChange(of: showSettings) { value in
-            if value {
-                viewModel.setActive(false)
-            } else {
-                viewModel.setActive(isActive)
-            }
+        .onChange(of: rows) { _ in
+            clampMines()
+        }
+        .onChange(of: cols) { _ in
+            clampMines()
+        }
+        .onChange(of: mines) { _ in
+            clampMines()
         }
         .onChange(of: viewModel.hasStarted) { value in
             onPlayingChanged(value)
@@ -54,6 +65,7 @@ struct CustomModeView: View {
         .onChange(of: viewModel.state.status) { value in
             if value != .playing {
                 onPlayingChanged(false)
+                zoomResetToken = UUID()
             }
         }
         .onChange(of: viewModel.elapsedSeconds) { value in
@@ -72,65 +84,21 @@ struct CustomModeView: View {
             guard let target = notification.object as? ModePage else { return }
             if target == .custom {
                 startCustomGame()
-                showSettings = false
             }
         }
-    }
-
-    private var settingsPage: some View {
-        ZStack {
-            Color(.systemBackground).ignoresSafeArea()
-            VStack(spacing: 12) {
-                HStack {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Custom Mode")
-                            .font(.title2.weight(.bold))
-                        Text("Set board size and mines")
-                            .font(.caption.weight(.semibold))
-                            .foregroundStyle(.secondary)
-                    }
-                    Spacer()
-                }
-                .padding(.top, 20)
-
-                customControls
-
-                Button("Start Game") {
+        .onReceive(NotificationCenter.default.publisher(for: .openCustomSettings)) { _ in
+            showSettingsSheet = true
+        }
+        .sheet(isPresented: $showSettingsSheet) {
+            CustomSettingsSheet(
+                rows: $rows,
+                cols: $cols,
+                mines: $mines,
+                onStart: {
                     startCustomGame()
-                    showSettings = false
+                    showSettingsSheet = false
                 }
-                .buttonStyle(.borderedProminent)
-                .padding(.top, 8)
-
-                Spacer()
-            }
-            .padding(.horizontal, 16)
-            .padding(.top, 24)
-            .padding(.bottom, 24)
-        }
-        .onAppear { clampMines() }
-    }
-
-    private var gamePage: some View {
-        ZStack {
-            Color(.systemBackground).ignoresSafeArea()
-            VStack(spacing: isZoomed ? 0 : 12) {
-                HStack {
-                    Spacer()
-                    Button("Settings") {
-                        showSettings = true
-                    }
-                    .buttonStyle(.bordered)
-                }
-                GameBoardView(viewModel: viewModel, isZoomed: $isZoomed)
-                if !isZoomed {
-                    CollapsibleStatsView(mode: .custom)
-                }
-            }
-            .padding(.horizontal, isZoomed ? 0 : 16)
-            .padding(.top, isZoomed ? 0 : 16)
-            .padding(.bottom, isZoomed ? 0 : 24)
-            .ignoresSafeArea(edges: isZoomed ? .top : [])
+            )
         }
         .alert(viewModel.resultTitle, isPresented: $viewModel.showResult) {
             Button("New Game") {
@@ -139,37 +107,6 @@ struct CustomModeView: View {
         } message: {
             Text(viewModel.resultMessage)
         }
-    }
-
-    private var customControls: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Custom Settings")
-                .font(.headline)
-
-            Stepper(value: $rows, in: 8...24, step: 1) {
-                Text("Rows: \(rows)")
-            }
-            .onChange(of: rows) { _ in
-                clampMines()
-            }
-
-            Stepper(value: $cols, in: 8...30, step: 1) {
-                Text("Columns: \(cols)")
-            }
-            .onChange(of: cols) { _ in
-                clampMines()
-            }
-
-            Stepper(value: $mines, in: minMines...maxMines, step: 1) {
-                Text("Mines: \(mines)")
-            }
-            .onChange(of: mines) { _ in
-                clampMines()
-            }
-        }
-        .padding(12)
-        .background(Color.secondary.opacity(0.08))
-        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
 
     private var maxMines: Int {
@@ -187,7 +124,65 @@ struct CustomModeView: View {
     }
 
     private func startCustomGame() {
+        clampMines()
         let config = CustomConfig(rows: rows, cols: cols, mines: mines)
         viewModel.startNewGame(mode: .custom(config))
+    }
+}
+
+struct CustomSettingsSheet: View {
+    @Binding var rows: Int
+    @Binding var cols: Int
+    @Binding var mines: Int
+    let onStart: () -> Void
+
+    var body: some View {
+        NavigationStack {
+            VStack(spacing: 16) {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("Custom Board")
+                        .font(.custom("AvenirNext-DemiBold", size: 22))
+                    Text("Tune size and mines, then start a new game.")
+                        .font(.custom("AvenirNext-Medium", size: 13))
+                        .foregroundStyle(.secondary)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+                VStack(alignment: .leading, spacing: 12) {
+                    Stepper(value: $rows, in: 8...24, step: 1) {
+                        Text("Rows: \(rows)")
+                            .font(.custom("AvenirNext-Medium", size: 16))
+                    }
+                    Stepper(value: $cols, in: 8...30, step: 1) {
+                        Text("Columns: \(cols)")
+                            .font(.custom("AvenirNext-Medium", size: 16))
+                    }
+                    Stepper(value: $mines, in: 10...maxMines, step: 1) {
+                        Text("Mines: \(mines)")
+                            .font(.custom("AvenirNext-Medium", size: 16))
+                    }
+                }
+                .padding(14)
+                .background(Color.secondary.opacity(0.08), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+
+                Button(action: onStart) {
+                    Text("Start New Game")
+                        .font(.custom("AvenirNext-DemiBold", size: 16))
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .background(Color.orange.opacity(0.18), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                }
+
+                Spacer()
+            }
+            .padding(16)
+            .navigationTitle("Custom Settings")
+            .navigationBarTitleDisplayMode(.inline)
+        }
+    }
+
+    private var maxMines: Int {
+        let total = rows * cols
+        return max(10, Int(Double(total) * 0.3))
     }
 }

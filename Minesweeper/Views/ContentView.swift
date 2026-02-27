@@ -61,14 +61,15 @@ struct ContentView: View {
             }
         }
         .safeAreaInset(edge: .top) {
-            if !(isZoomed[selection] ?? false) {
-                TopBar(
-                    selection: $selection,
-                    elapsedSeconds: elapsedSeconds[selection] ?? 0,
-                    onSelect: { selection = $0 },
-                    onStart: startNewGame
-                )
-            }
+            TopBar(
+                selection: $selection,
+                elapsedSeconds: elapsedSeconds[selection] ?? 0,
+                onSelect: { selection = $0 },
+                onStart: startNewGame,
+                onCustomSettings: {
+                    NotificationCenter.default.post(name: .openCustomSettings, object: nil)
+                }
+            )
         }
     }
     private func startNewGame() {
@@ -82,49 +83,67 @@ struct TopBar: View {
     let elapsedSeconds: Int
     let onSelect: (ModePage) -> Void
     let onStart: () -> Void
-    @State private var showModePicker = false
+    let onCustomSettings: () -> Void
 
     var body: some View {
-        HStack(spacing: 12) {
-            Button {
-                showModePicker = true
+        HStack(spacing: 10) {
+            Menu {
+                Button("Easy") { onSelect(.easy) }
+                Button("Medium") { onSelect(.medium) }
+                Button("Hard") { onSelect(.hard) }
+                Button("Custom") { onSelect(.custom) }
             } label: {
                 HStack(spacing: 6) {
                     Text(selection.title)
-                        .font(.headline.weight(.semibold))
+                        .font(.custom("AvenirNext-DemiBold", size: 15))
                     Image(systemName: "chevron.down")
                         .font(.caption.weight(.semibold))
                         .foregroundStyle(.secondary)
                 }
                 .padding(.horizontal, 12)
                 .padding(.vertical, 8)
-                .background(Color.secondary.opacity(0.12))
-                .clipShape(Capsule())
-            }
-            .confirmationDialog("Select Mode", isPresented: $showModePicker, titleVisibility: .visible) {
-                Button("Easy") { onSelect(.easy) }
-                Button("Medium") { onSelect(.medium) }
-                Button("Hard") { onSelect(.hard) }
-                Button("Custom") { onSelect(.custom) }
-                Button("Cancel", role: .cancel) {}
+                .background(.ultraThinMaterial, in: Capsule())
             }
 
-            Button("Start") {
+            Button {
                 onStart()
+            } label: {
+                Label("New", systemImage: "arrow.clockwise")
+                    .font(.custom("AvenirNext-DemiBold", size: 14))
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 8)
+                    .background(Color.orange.opacity(0.18), in: Capsule())
             }
-            .buttonStyle(.bordered)
 
-            Spacer()
+            Spacer(minLength: 8)
 
             ElapsedTimeView(elapsedSeconds: elapsedSeconds)
+
+            if selection == .custom {
+                Button {
+                    onCustomSettings()
+                } label: {
+                    Image(systemName: "slider.horizontal.3")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.primary)
+                        .padding(8)
+                        .background(.ultraThinMaterial, in: Circle())
+                }
+                .accessibilityLabel("Custom settings")
+            }
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 8)
-        .background(.ultraThinMaterial)
-        .overlay(Divider(), alignment: .bottom)
+        .padding(.horizontal, 14)
+        .padding(.vertical, 10)
+        .background(
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .fill(.ultraThinMaterial)
+        )
+        .padding(.horizontal, 12)
+        .padding(.top, 8)
     }
 }
 
 extension Notification.Name {
     static let startNewGame = Notification.Name("startNewGame")
+    static let openCustomSettings = Notification.Name("openCustomSettings")
 }

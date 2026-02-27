@@ -34,13 +34,24 @@ The user wants a native iOS Minesweeper experience implemented in modern Swift a
 - Swipe-based mode switching is disabled.
 
 ### Custom Mode
-- Custom screen exposes steppers for rows, columns, and mine count.
-- Safe bounds (initial proposal):
+- Custom settings are presented in a sheet with steppers for rows, columns, and mine count.
+- Safe bounds:
   - Rows: 8 to 24
   - Columns: 8 to 30
   - Mines: 10% to 30% of total cells, with an absolute minimum of 10
 - Changes apply on confirm and start a new game instance.
-- Custom settings live on a dedicated page; the game board is shown on a separate page with a Settings button to return.
+- The game board stays visible in custom mode; settings are opened from the top bar.
+
+### Board Zoom and Pan
+- Use pinch to zoom the board with the zoom centered under the user’s fingers.
+- When zoomed in, users can pan to view more cells.
+- When zooming back to base scale, the board recenters between the top bar and stats strip.
+- When a game ends, the board resets to base zoom.
+
+### Stats Placement
+- Stats are shown in a compact overlay strip near the bottom.
+- Tapping the strip opens a stats sheet with expanded metrics.
+- Stats overlay hides while zoomed to reduce clutter, without changing layout bounds.
 
 ### Gameplay Model
 - `GameMode`: `.easy`, `.medium`, `.hard`, `.custom(config)`

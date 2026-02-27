@@ -18,6 +18,10 @@
 - [x] Adjust board sizing to fit screen width on smaller devices
 - [x] Replace mode indicator with a top bar (mode picker, start button, timer)
 - [x] Disable swipe mode switching and auto-scale larger boards to use more height
+- [x] Redesign top bar styling (mode menu, new game, timer, custom settings)
+- [x] Move custom mode settings into a sheet
+- [x] Replace stats panel with compact overlay + detail sheet
+- [x] Implement pinch-to-zoom with pan and end-of-game reset
 ## Notes
 - Implementation PR: https://github.com/yanqian/minesweeper/pull/5
 - Tests: `xcodebuild -scheme Minesweeper -sdk iphonesimulator -configuration Debug -destination 'platform=iOS Simulator,name=iPhone 17' test CODE_SIGNING_ALLOWED=NO`

@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct GameView: View {
     @StateObject private var viewModel: GameViewModel
@@ -7,6 +8,9 @@ struct GameView: View {
     let onElapsedChanged: (Int) -> Void
     let onZoomChanged: (Bool) -> Void
     @State private var isZoomed = false
+    @State private var zoomResetToken = UUID()
+    private let topBarReserve: CGFloat = 70
+    private let statsReserve: CGFloat = 66
 
     init(
         mode: GameMode,
@@ -25,17 +29,18 @@ struct GameView: View {
 
     var body: some View {
         ZStack {
-            Color(.systemBackground).ignoresSafeArea()
-            VStack(spacing: isZoomed ? 0 : 12) {
-                GameBoardView(viewModel: viewModel, isZoomed: $isZoomed)
-                if !isZoomed {
-                    CollapsibleStatsView(mode: viewModel.mode.id)
-                }
-            }
-            .padding(.horizontal, isZoomed ? 0 : 16)
-            .padding(.top, isZoomed ? 0 : 16)
-            .padding(.bottom, isZoomed ? 0 : 24)
-            .ignoresSafeArea(edges: isZoomed ? .top : [])
+            GameBackgroundView().ignoresSafeArea()
+            GameBoardView(viewModel: viewModel, isZoomed: $isZoomed, resetToken: zoomResetToken)
+                .padding(.horizontal, 12)
+                .padding(.top, topBarReserve)
+                .padding(.bottom, statsReserve)
+                .ignoresSafeArea(edges: [])
+
+            StatsOverlay(mode: viewModel.mode.id)
+                .padding(.horizontal, 12)
+                .padding(.bottom, 10)
+                .frame(maxHeight: .infinity, alignment: .bottomLeading)
+                .opacity(isZoomed ? 0.0 : 1.0)
         }
         .alert(viewModel.resultTitle, isPresented: $viewModel.showResult) {
             Button("New Game") {
@@ -54,6 +59,7 @@ struct GameView: View {
         .onChange(of: viewModel.state.status) { value in
             if value != .playing {
                 onPlayingChanged(false)
+                zoomResetToken = UUID()
             }
         }
         .onChange(of: viewModel.elapsedSeconds) { value in
@@ -91,12 +97,11 @@ struct ElapsedTimeView: View {
 
     var body: some View {
         Text(elapsedString)
-            .font(.headline.monospacedDigit())
-            .foregroundStyle(.red)
-            .padding(.horizontal, 12)
+            .font(.custom("AvenirNext-DemiBold", size: 14).monospacedDigit())
+            .foregroundStyle(Color(red: 0.72, green: 0.12, blue: 0.12))
+            .padding(.horizontal, 10)
             .padding(.vertical, 6)
-            .background(Color.red.opacity(0.12))
-            .clipShape(Capsule())
+            .background(Color(red: 0.98, green: 0.86, blue: 0.86), in: Capsule())
     }
 
     private var elapsedString: String {
@@ -109,10 +114,7 @@ struct ElapsedTimeView: View {
 struct GameBoardView: View {
     @ObservedObject var viewModel: GameViewModel
     @Binding var isZoomed: Bool
-    @State private var zoomScale: CGFloat = 1.0
-    @State private var gestureScale: CGFloat = 1.0
-    @State private var didAutoScale = false
-    private let zoomThreshold: CGFloat = 1.05
+    let resetToken: UUID
 
     var body: some View {
         GeometryReader { proxy in
@@ -121,14 +123,23 @@ struct GameBoardView: View {
             let rows = viewModel.state.board.rows
             let cols = viewModel.state.board.cols
             let gridSpacing: CGFloat = 2
-            let gridPadding: CGFloat = isZoomed ? 0 : 4
+            let gridPadding: CGFloat = 4
             let widthCell = (availableWidth - (gridPadding * 2) - (gridSpacing * CGFloat(cols - 1))) / CGFloat(cols)
             let heightCell = (availableHeight - (gridPadding * 2) - (gridSpacing * CGFloat(rows - 1))) / CGFloat(rows)
             let rawSize = min(widthCell, heightCell)
-            let cellSize = max(16, floor(rawSize))
-            let effectiveScale = zoomScale * gestureScale
+            let cellSize = max(12, floor(rawSize))
 
-            ScrollView([.horizontal, .vertical], showsIndicators: false) {
+            let gridWidth = (cellSize * CGFloat(cols)) + (gridSpacing * CGFloat(max(cols - 1, 0))) + (gridPadding * 2)
+            let gridHeight = (cellSize * CGFloat(rows)) + (gridSpacing * CGFloat(max(rows - 1, 0))) + (gridPadding * 2)
+            let contentSize = CGSize(width: gridWidth, height: gridHeight)
+
+            ZoomableScrollView(
+                minZoomScale: 1.0,
+                maxZoomScale: 4.0,
+                isZoomed: $isZoomed,
+                contentSize: contentSize,
+                resetToken: resetToken
+            ) {
                 LazyVGrid(columns: Array(repeating: GridItem(.fixed(cellSize), spacing: gridSpacing), count: cols), spacing: gridSpacing) {
                     ForEach(viewModel.state.board.cells) { cell in
                         CellView(cell: cell, size: cellSize)
@@ -141,49 +152,183 @@ struct GameBoardView: View {
                     }
                 }
                 .padding(gridPadding)
-                .scaleEffect(effectiveScale, anchor: .center)
                 .compositingGroup()
                 .drawingGroup()
                 .transaction { $0.animation = nil }
             }
-            .simultaneousGesture(
-                MagnificationGesture()
-                    .onChanged { value in
-                        gestureScale = value
-                        updateZoomState()
-                    }
-                    .onEnded { value in
-                        zoomScale = clampScale(zoomScale * value)
-                        gestureScale = 1.0
-                        updateZoomState()
-                    }
-            )
-            .onAppear {
-                applyAutoScaleIfNeeded(widthCell: widthCell, heightCell: heightCell, cols: cols)
-                updateZoomState()
-            }
-            .onChange(of: proxy.size) { _ in
-                applyAutoScaleIfNeeded(widthCell: widthCell, heightCell: heightCell, cols: cols)
-                updateZoomState()
-            }
         }
         .frame(maxHeight: .infinity)
     }
+}
 
-    private func clampScale(_ scale: CGFloat) -> CGFloat {
-        min(2.0, max(0.8, scale))
+struct GameBackgroundView: View {
+    var body: some View {
+        LinearGradient(
+            colors: [
+                Color(red: 0.98, green: 0.97, blue: 0.95),
+                Color(red: 0.93, green: 0.95, blue: 0.97)
+            ],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+    }
+}
+
+struct ZoomableScrollView<Content: View>: UIViewRepresentable {
+    let minZoomScale: CGFloat
+    let maxZoomScale: CGFloat
+    @Binding var isZoomed: Bool
+    let contentSize: CGSize
+    let resetToken: UUID
+    let content: Content
+
+    init(
+        minZoomScale: CGFloat,
+        maxZoomScale: CGFloat,
+        isZoomed: Binding<Bool>,
+        contentSize: CGSize,
+        resetToken: UUID,
+        @ViewBuilder content: () -> Content
+    ) {
+        self.minZoomScale = minZoomScale
+        self.maxZoomScale = maxZoomScale
+        _isZoomed = isZoomed
+        self.contentSize = contentSize
+        self.resetToken = resetToken
+        self.content = content()
     }
 
-    private func applyAutoScaleIfNeeded(widthCell: CGFloat, heightCell: CGFloat, cols: Int) {
-        guard !didAutoScale else { return }
-        guard cols >= 16, widthCell > 0, heightCell > 0 else { return }
-        let ratio = heightCell / widthCell
-        let targetScale = clampScale(max(1.0, ratio))
-        zoomScale = targetScale
-        didAutoScale = true
+    func makeUIView(context: Context) -> UIScrollView {
+        let scrollView = CenteringScrollView()
+        scrollView.delegate = context.coordinator
+        scrollView.showsHorizontalScrollIndicator = false
+        scrollView.showsVerticalScrollIndicator = false
+        scrollView.bouncesZoom = true
+        scrollView.bounces = true
+        scrollView.decelerationRate = .fast
+        scrollView.minimumZoomScale = minZoomScale
+        scrollView.maximumZoomScale = maxZoomScale
+        scrollView.contentInsetAdjustmentBehavior = .never
+        scrollView.backgroundColor = .clear
+
+        let host = context.coordinator.hostingController
+        host.view.backgroundColor = .clear
+        host.view.frame = CGRect(origin: .zero, size: contentSize)
+        scrollView.addSubview(host.view)
+        scrollView.contentSize = contentSize
+        scrollView.onLayout = { [weak coordinator = context.coordinator] scrollView in
+            coordinator?.updateInsets(scrollView)
+            coordinator?.updateZoomBinding(scrollView)
+        }
+        context.coordinator.updateInsets(scrollView)
+        return scrollView
     }
 
-    private func updateZoomState() {
-        isZoomed = (zoomScale * gestureScale) > zoomThreshold
+    func updateUIView(_ scrollView: UIScrollView, context: Context) {
+        context.coordinator.hostingController.rootView = AnyView(content)
+        if context.coordinator.lastResetToken != resetToken {
+            context.coordinator.lastResetToken = resetToken
+            scrollView.setZoomScale(minZoomScale, animated: false)
+            scrollView.contentOffset = .zero
+        }
+
+        if scrollView.minimumZoomScale != minZoomScale {
+            scrollView.minimumZoomScale = minZoomScale
+        }
+        if scrollView.maximumZoomScale != maxZoomScale {
+            scrollView.maximumZoomScale = maxZoomScale
+        }
+
+        let lastSize = context.coordinator.lastContentSize
+        let sizeDelta = abs(lastSize.width - contentSize.width) + abs(lastSize.height - contentSize.height)
+        let sizeChanged = sizeDelta > 0.5
+
+        if sizeChanged {
+            context.coordinator.lastContentSize = contentSize
+            context.coordinator.hostingController.view.frame = CGRect(origin: .zero, size: contentSize)
+            scrollView.contentSize = contentSize
+
+            if scrollView.zoomScale <= minZoomScale + 0.01 {
+                scrollView.setZoomScale(minZoomScale, animated: false)
+                scrollView.contentOffset = .zero
+            }
+        } else if context.coordinator.hostingController.view.frame.size != contentSize {
+            context.coordinator.hostingController.view.frame = CGRect(origin: .zero, size: contentSize)
+            scrollView.contentSize = contentSize
+        }
+
+        if scrollView.zoomScale < minZoomScale {
+            scrollView.setZoomScale(minZoomScale, animated: false)
+        }
+
+        context.coordinator.updateInsets(scrollView)
+        context.coordinator.updateZoomBinding(scrollView)
+    }
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(isZoomed: $isZoomed)
+    }
+
+    final class Coordinator: NSObject, UIScrollViewDelegate {
+        let hostingController = UIHostingController(rootView: AnyView(EmptyView()))
+        private let isZoomed: Binding<Bool>
+        fileprivate var lastContentSize: CGSize = .zero
+        private var lastBoundsSize: CGSize = .zero
+        fileprivate var lastResetToken = UUID()
+
+        init(isZoomed: Binding<Bool>) {
+            self.isZoomed = isZoomed
+        }
+
+        func viewForZooming(in scrollView: UIScrollView) -> UIView? {
+            hostingController.view
+        }
+
+        func scrollViewDidZoom(_ scrollView: UIScrollView) {
+            updateInsets(scrollView)
+            updateZoomBinding(scrollView)
+        }
+
+        func scrollViewDidEndZooming(_ scrollView: UIScrollView, with view: UIView?, atScale scale: CGFloat) {
+            if scale <= scrollView.minimumZoomScale + 0.02 {
+                scrollView.setZoomScale(scrollView.minimumZoomScale, animated: false)
+            }
+            updateInsets(scrollView)
+            updateZoomBinding(scrollView)
+        }
+
+        func updateInsets(_ scrollView: UIScrollView) {
+            let boundsSize = scrollView.bounds.size
+            let contentFrame = hostingController.view.frame
+            let scaledContentWidth = contentFrame.size.width
+            let scaledContentHeight = contentFrame.size.height
+
+            let horizontalInset = max((boundsSize.width - scaledContentWidth) * 0.5, 0)
+            let verticalInset = max((boundsSize.height - scaledContentHeight) * 0.5, 0)
+            let newInset = UIEdgeInsets(top: verticalInset, left: horizontalInset, bottom: verticalInset, right: horizontalInset)
+            scrollView.contentInset = newInset
+
+            lastBoundsSize = boundsSize
+
+            if scrollView.zoomScale <= scrollView.minimumZoomScale + 0.01 {
+                scrollView.contentOffset = CGPoint(x: -horizontalInset, y: -verticalInset)
+            }
+        }
+
+        func updateZoomBinding(_ scrollView: UIScrollView) {
+            isZoomed.wrappedValue = scrollView.zoomScale > scrollView.minimumZoomScale + 0.01
+        }
+    }
+}
+
+final class CenteringScrollView: UIScrollView {
+    var onLayout: ((UIScrollView) -> Void)?
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        if isDragging || isDecelerating || isTracking || isZooming {
+            return
+        }
+        onLayout?(self)
     }
 }

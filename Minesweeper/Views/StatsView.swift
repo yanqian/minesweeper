@@ -1,5 +1,75 @@
 import SwiftUI
 
+struct StatsOverlay: View {
+    @EnvironmentObject private var statsStore: StatsStore
+    let mode: ModeID
+    @State private var showDetails = false
+
+    var body: some View {
+        let stats = statsStore.stats(for: mode)
+
+        Button {
+            showDetails = true
+        } label: {
+            HStack(spacing: 10) {
+                StatChip(title: "Win", value: StatsFormatter.percent(stats.successRate))
+                StatChip(title: "Best", value: StatsFormatter.best(stats.bestTimeSeconds))
+                StatChip(title: "Played", value: "\(stats.gamesPlayed)")
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .background(.ultraThinMaterial, in: Capsule())
+            .overlay(
+                Capsule()
+                    .stroke(Color.black.opacity(0.06), lineWidth: 1)
+            )
+        }
+        .buttonStyle(.plain)
+        .sheet(isPresented: $showDetails) {
+            StatsSheet(mode: mode)
+        }
+        .accessibilityLabel("Show stats")
+    }
+}
+
+struct StatChip: View {
+    let title: String
+    let value: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(title)
+                .font(.custom("AvenirNext-Medium", size: 10))
+                .foregroundStyle(.secondary)
+            Text(value)
+                .font(.custom("AvenirNext-DemiBold", size: 14))
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+}
+
+struct StatsSheet: View {
+    let mode: ModeID
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        NavigationStack {
+            VStack(alignment: .leading, spacing: 16) {
+                StatsSummaryView(mode: mode)
+                Spacer()
+            }
+            .padding(16)
+            .navigationTitle("Stats")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Done") { dismiss() }
+                }
+            }
+        }
+    }
+}
+
 struct CollapsibleStatsView: View {
     let mode: ModeID
     @State private var isExpanded = false
@@ -54,10 +124,10 @@ struct CompactStatPill: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
             Text(title)
-                .font(.caption2)
+                .font(.custom("AvenirNext-Medium", size: 11))
                 .foregroundStyle(.secondary)
             Text(value)
-                .font(.subheadline.weight(.semibold))
+                .font(.custom("AvenirNext-DemiBold", size: 14))
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
@@ -98,10 +168,10 @@ struct StatPill: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(title)
-                .font(.caption)
+                .font(.custom("AvenirNext-Medium", size: 11))
                 .foregroundStyle(.secondary)
             Text(value)
-                .font(.subheadline.weight(.semibold))
+                .font(.custom("AvenirNext-DemiBold", size: 15))
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(8)
